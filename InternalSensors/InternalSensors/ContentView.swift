@@ -13,12 +13,6 @@ struct ContentView: View {
                 Text(vm.gyroY)
                 Text(vm.gyroZ)
             }
-        }.task {
-            vm.getGyroVal()
-            vm.getAccelVal()
-        }
-        
-        Section{
             Form{
                 Text("Acceleration")
                     .font(.headline)
@@ -27,10 +21,10 @@ struct ContentView: View {
                 Text(vm.accelY)
                 Text(vm.accelZ)
             }
+        }.task {
+            vm.getGyroVal()
+            vm.getAccelVal()
         }
-
-        
-        
     }
 }
 
