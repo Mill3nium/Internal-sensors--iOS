@@ -9,21 +9,23 @@ struct ContentView: View {
                 Text("GyroScope")
                     .font(.headline)
                     .padding()
-                Text(vm.gyroX)
-                Text(vm.gyroY)
-                Text(vm.gyroZ)
+                Text("X: \(vm.gyroX)")
+                Text("Y: \(vm.gyroY)")
+                Text("Z: \(vm.gyroZ)")
+                Text("Degree : \(vm.gDegree)")
             }
             Form{
                 Text("Acceleration")
                     .font(.headline)
                     .padding()
-                Text(vm.accelX)
-                Text(vm.accelY)
-                Text(vm.accelZ)
+                Text("X: \(vm.accelX)")
+                Text("Y: \(vm.accelY)")
+                Text("Z: \(vm.accelZ)")
+                Text("Degree : \(vm.aDegree)")
             }
         }.task {
-            vm.getGyroVal()
-            vm.getAccelVal()
+            vm.startGyrometer()
+            vm.startAccelometer()
         }
     }
 }
