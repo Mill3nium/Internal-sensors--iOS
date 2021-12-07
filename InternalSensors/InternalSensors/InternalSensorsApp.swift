@@ -1,17 +1,14 @@
-//
-//  InternalSensorsApp.swift
-//  InternalSensors
-//
-//  Created by Milan Languric on 2021-12-06.
-//
-
 import SwiftUI
+
 
 @main
 struct InternalSensorsApp: App {
+    @StateObject private var theViewModel = InternalSensorVM()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(theViewModel)
         }
     }
 }

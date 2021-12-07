@@ -1,16 +1,36 @@
-//
-//  ContentView.swift
-//  InternalSensors
-//
-//  Created by Milan Languric on 2021-12-06.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var vm : InternalSensorVM
+    
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        Section{
+            Form{
+                Text("GyroScope")
+                    .font(.headline)
+                    .padding()
+                Text(vm.gyroX)
+                Text(vm.gyroY)
+                Text(vm.gyroZ)
+            }
+        }.task {
+            vm.getGyroVal()
+            vm.getAccelVal()
+        }
+        
+        Section{
+            Form{
+                Text("Acceleration")
+                    .font(.headline)
+                    .padding()
+                Text(vm.accelX)
+                Text(vm.accelY)
+                Text(vm.accelZ)
+            }
+        }
+
+        
+        
     }
 }
 
