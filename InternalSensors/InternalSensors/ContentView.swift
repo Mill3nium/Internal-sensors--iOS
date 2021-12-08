@@ -12,7 +12,7 @@ struct ContentView: View {
                 Text("X: \(vm.gyroX)")
                 Text("Y: \(vm.gyroY)")
                 Text("Z: \(vm.gyroZ)")
-                Text("Degree : \(vm.gDegree)")
+                Text("Angle : \(vm.gDegree)")
             }
             Form{
                 Text("Acceleration")
@@ -21,7 +21,10 @@ struct ContentView: View {
                 Text("X: \(vm.accelX)")
                 Text("Y: \(vm.accelY)")
                 Text("Z: \(vm.accelZ)")
-                Text("Degree : \(vm.aDegree)")
+                
+                Text("Angle (x): \(vm.axDegree)")
+                Text("Angle (y): \(vm.ayDegree)")
+
             }
         }.task {
             vm.startGyrometer()
