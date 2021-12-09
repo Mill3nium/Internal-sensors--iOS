@@ -16,31 +16,41 @@ class InternalSensorVM : ObservableObject {
     @Published var accelY:String = "-"
     @Published var accelZ:String = "-"
     
+    @Published var comPitchka:String = "-"
+    
     // n-1 values
-    var accelTemp: [Double] = [Double](repeating: 0, count: 3)
-    var gyroTemp: [Double] = [Double](repeating: 0, count: 3)
-        
+    var accelFilteredValue: [Double] = [Double](repeating: 0, count: 3) // index: 0 = x, 1 = y, 2 = x
+    var comPitch: [Double] = [Double](repeating: 0, count: 1)
+    
     var motionManager = CMMotionManager()
     
-    func startGyrometer(){
-        //motionManager.gyroUpdateInterval = 0.5 // how often are we looking for changes
-        motionManager.startGyroUpdates(to: OperationQueue.current!){ (data,error) in
-            if let gyroData = data {
-                // TODO: filer values
+    func startGyrometerAndAccelometer(){
+        motionManager.startGyroUpdates()
+        motionManager.startAccelerometerUpdates()
                 
-                let gFilteringFactor = 0.1
-                
-                self.gyroTemp[0] = gFilteringFactor * self.gyroTemp[0]  + (1.0 - gFilteringFactor) * gyroData.rotationRate.x
-                self.gyroTemp[1] = gFilteringFactor * self.gyroTemp[1]  + (1.0 - gFilteringFactor) * gyroData.rotationRate.y
-                self.gyroTemp[2] = gFilteringFactor * self.gyroTemp[2]  + (1.0 - gFilteringFactor) * gyroData.rotationRate.z
-                
-                self.gyroX = String(self.gyroTemp[0] * (180 / Double.pi))
-                self.gyroY = String(self.gyroTemp[1] * (180 / Double.pi))
-                self.gyroZ = String(self.gyroTemp[2] * (180 / Double.pi))
-                
-                
-            }
-        }
+        guard let accelData = self.motionManager.accelerometerData else { return }
+        guard let gyroData = self.motionManager.gyroData else { return }
+        
+        let aX = accelData.acceleration.x
+        let aY = accelData.acceleration.y
+        let aZ = accelData.acceleration.z
+        
+        let gY = gyroData.rotationRate.y
+        
+        //accPitch calculation - Work out the squares
+        let aX2 = aX * aX
+        let aY2 = aY * aY
+        let aZ2 = aZ * aY
+        
+        // Angle X-axis
+        var accPitch = sqrt(aY2 + aZ2)
+        accPitch = aX2 / accPitch
+        
+        // Complementary filter
+        let alpha = 0.1
+        
+        self.comPitch[0] = (1 - alpha) * (self.comPitch[0] + gY) + (alpha * accPitch)
+        self.comPitchka = String(self.comPitch[0])
     }
     
     /// value 1.0 representing an acceleration of 9.8 meters per second in the given direction.
@@ -50,22 +60,22 @@ class InternalSensorVM : ObservableObject {
         //motionManager.accelerometerUpdateInterval = 0.5 // how often are we looking for changes
         motionManager.startAccelerometerUpdates(to: OperationQueue.current!){ (data,error) in
             if let accelData = data {
-
-                // filter values
+                
+                // EWMA filter
                 let aFilteringFactor = 0.1
-         
-                self.accelTemp[0] = aFilteringFactor * self.accelTemp[0]  + (1.0 - aFilteringFactor) * accelData.acceleration.x
-                self.accelTemp[1] = aFilteringFactor * self.accelTemp[1]  + (1.0 - aFilteringFactor) * accelData.acceleration.y
-                self.accelTemp[2] = aFilteringFactor * self.accelTemp[2]  + (1.0 - aFilteringFactor) * accelData.acceleration.z
-
-                self.accelX = String(9.8 * self.accelTemp[0])
-                self.accelY = String(9.8 * self.accelTemp[1])
-                self.accelZ = String(9.8 * self.accelTemp[2])
+                
+                self.accelFilteredValue[0] = aFilteringFactor * self.accelFilteredValue[0]  + (1.0 - aFilteringFactor) * accelData.acceleration.x
+                self.accelFilteredValue[1] = aFilteringFactor * self.accelFilteredValue[1]  + (1.0 - aFilteringFactor) * accelData.acceleration.y
+                self.accelFilteredValue[2] = aFilteringFactor * self.accelFilteredValue[2]  + (1.0 - aFilteringFactor) * accelData.acceleration.z
+                
+                self.accelX = String(9.8 * self.accelFilteredValue[0])
+                self.accelY = String(9.8 * self.accelFilteredValue[1])
+                self.accelZ = String(9.8 * self.accelFilteredValue[2])
                 
                 //angle calculation
-                let x_val:Double = self.accelTemp[0]
-                let y_val:Double = self.accelTemp[1]
-                let z_val:Double = self.accelTemp[2]
+                let x_val:Double = self.accelFilteredValue[0]
+                let y_val:Double = self.accelFilteredValue[1]
+                let z_val:Double = self.accelFilteredValue[2]
                 
                 // Work out the squares
                 let x2:Double = x_val * x_val
