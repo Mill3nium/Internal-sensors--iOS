@@ -8,6 +8,8 @@ class InternalSensorVM : ObservableObject {
     @Published var axDegree:String = "-"
     @Published var comPitchPlot:String = "-"
     
+    var isMeasuring:Bool = false
+    
     // n-1 values
     var accelFilteredValue: [Double] = [Double](repeating: 0, count: 3) // index: 0 = x, 1 = y, 2 = x
     var comPitch: [Double] = [Double](repeating: 0, count: 1)
@@ -18,8 +20,18 @@ class InternalSensorVM : ObservableObject {
     
     var motionManager = CMMotionManager()
     
-    func startGyrometerAndAccelometer(){
+    func stopGyrosAndAccelometer(){
+        self.isMeasuring = false
         
+        self.motionManager.stopAccelerometerUpdates()
+        self.motionManager.stopGyroUpdates()
+     
+        self.axDegree = "-"
+        self.comPitchPlot = "-"
+    }
+    
+    func startGyrometerAndAccelometer(){
+        self.isMeasuring = true
         //motionManager.accelerometerUpdateInterval = 0.2
         //motionManager.gyroUpdateInterval = 0.2
         
