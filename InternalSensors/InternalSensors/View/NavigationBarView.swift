@@ -3,6 +3,10 @@ import SwiftUI
 
 
 struct NavigationBarView: View {
+    init() {
+        UITabBar.appearance().backgroundColor = UIColor.black
+    }
+    
     var body: some View{
         TabView{
             MeasureView().tabItem{

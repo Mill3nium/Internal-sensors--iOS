@@ -5,7 +5,6 @@ import CoreMotion
 
 class InternalSensorVM : ObservableObject {
     
-    @Published var ayDegree:String = "-"
     @Published var axDegree:String = "-"
     @Published var comPitchPlot:String = "-"
     
@@ -57,7 +56,7 @@ class InternalSensorVM : ObservableObject {
                         self.comPitch[0] = (1 - alpha) * (self.comPitch[0] + gY) + (alpha * accPitch)
                         //print("comPitch: ",self.comPitch[0])
                         
-                        self.comPitchPlot = String(self.comPitch[0])
+                        self.comPitchPlot = String(format:"%.5f °",self.comPitch[0])
                         
                         // EWMA filter
                         let aFilteringFactor = 0.1
@@ -78,7 +77,7 @@ class InternalSensorVM : ObservableObject {
                         // Angle X-axis
                         var resX = sqrt(y2 + z2)
                         resX = x_val / resX
-                        self.axDegree = String(atan(resX) * (180 / Double.pi))
+                        self.axDegree = String(format:"%.5f °",atan(resX) * (180 / Double.pi))
                     }
                 }
             }

@@ -14,7 +14,7 @@ struct MeasureView: View {
                 Text("Accelometer")
                     .font(.headline)
                     .padding()
-                Text("Angle (x): \(vm.axDegree)")
+                Text("AccPitch: \(vm.axDegree)")
             }
         }.task {
             vm.startGyrometerAndAccelometer()

@@ -14,6 +14,7 @@
 		6BB82B94275FA3B800DAEF0F /* InternalSensorVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB82B93275FA3B800DAEF0F /* InternalSensorVM.swift */; };
 		6BC57AE227628D6700B62DA9 /* NavigationBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC57AE127628D6700B62DA9 /* NavigationBarView.swift */; };
 		6BC57AE427628EAC00B62DA9 /* GraphsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC57AE327628EAC00B62DA9 /* GraphsView.swift */; };
+		6BC57AE7276293E200B62DA9 /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = 6BC57AE6276293E200B62DA9 /* SwiftUICharts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6BC57AE7276293E200B62DA9 /* SwiftUICharts in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -100,6 +102,9 @@
 			dependencies = (
 			);
 			name = InternalSensors;
+			packageProductDependencies = (
+				6BC57AE6276293E200B62DA9 /* SwiftUICharts */,
+			);
 			productName = InternalSensors;
 			productReference = 6BB82B82275EA10E00DAEF0F /* InternalSensors.app */;
 			productType = "com.apple.product-type.application";
@@ -128,6 +133,9 @@
 				Base,
 			);
 			mainGroup = 6BB82B79275EA10E00DAEF0F;
+			packageReferences = (
+				6BC57AE5276293E200B62DA9 /* XCRemoteSwiftPackageReference "ChartView" */,
+			);
 			productRefGroup = 6BB82B83275EA10E00DAEF0F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -361,6 +369,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6BC57AE5276293E200B62DA9 /* XCRemoteSwiftPackageReference "ChartView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppPear/ChartView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6BC57AE6276293E200B62DA9 /* SwiftUICharts */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6BC57AE5276293E200B62DA9 /* XCRemoteSwiftPackageReference "ChartView" */;
+			productName = SwiftUICharts;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6BB82B7A275EA10E00DAEF0F /* Project object */;
 }
