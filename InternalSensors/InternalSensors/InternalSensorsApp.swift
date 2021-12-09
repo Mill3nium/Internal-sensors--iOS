@@ -7,7 +7,7 @@ struct InternalSensorsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationBarView()
                 .environmentObject(theViewModel)
         }
     }

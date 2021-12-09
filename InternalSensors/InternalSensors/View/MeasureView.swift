@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+struct MeasureView: View {
     @EnvironmentObject var vm : InternalSensorVM
     
     var body: some View {
@@ -10,8 +10,7 @@ struct ContentView: View {
                     .font(.headline)
                     .padding()
                 Text("ComPitch : \(vm.comPitchPlot)")
-            }
-            Form{
+                
                 Text("Accelometer")
                     .font(.headline)
                     .padding()
