@@ -9,18 +9,17 @@ struct ContentView: View {
                 Text("GyroScope & Accelometer")
                     .font(.headline)
                     .padding()
-                Text("ComPitch : \(vm.comPitchka)")
+                Text("ComPitch : \(vm.comPitchPlot)")
             }
             Form{
                 Text("Accelometer")
                     .font(.headline)
                     .padding()
-
                 Text("Angle (y): \(vm.ayDegree)")
+                Text("Angle (x): \(vm.axDegree)")
             }
         }.task {
             vm.startGyrometerAndAccelometer()
-            //vm.startAccelometer()
         }
     }
 }

@@ -6,13 +6,14 @@ import CoreMotion
 class InternalSensorVM : ObservableObject {
     
     @Published var ayDegree:String = "-"
-    @Published var comPitchka:String = "-"
+    @Published var axDegree:String = "-"
+    @Published var comPitchPlot:String = "-"
     
     // n-1 values
     var accelFilteredValue: [Double] = [Double](repeating: 0, count: 3) // index: 0 = x, 1 = y, 2 = x
     var comPitch: [Double] = [Double](repeating: 0, count: 1)
     
-    //needed to calculate dt
+    //needed to calculate dt?
     var t1:Date = Date.now
     var t2:Date = Date.now
     
@@ -20,6 +21,9 @@ class InternalSensorVM : ObservableObject {
     
     func startGyrometerAndAccelometer(){
         print("Gyrometer & Accelometer")
+        
+        //motionManager.accelerometerUpdateInterval = 0.2
+        //motionManager.gyroUpdateInterval = 0.2
         
         motionManager.startAccelerometerUpdates(to: OperationQueue.current!){ (data,error) in
             print("Accelometer updates")
@@ -54,10 +58,30 @@ class InternalSensorVM : ObservableObject {
                         
                         // TODO: Add dT
                         self.comPitch[0] = (1 - alpha) * (self.comPitch[0] + gY) + (alpha * accPitch)
-                        print("comPitch: ",self.comPitch[0])
+                        //print("comPitch: ",self.comPitch[0])
+                    
+                        self.comPitchPlot = String(self.comPitch[0])
                         
-                        self.t2 = Date.now
-                        self.comPitchka = String(self.comPitch[0])
+                        // EWMA filter
+                        let aFilteringFactor = 0.1
+                        
+                        self.accelFilteredValue[0] = aFilteringFactor * self.accelFilteredValue[0]  + (1.0 - aFilteringFactor) * accelData.acceleration.x
+                        self.accelFilteredValue[1] = aFilteringFactor * self.accelFilteredValue[1]  + (1.0 - aFilteringFactor) * accelData.acceleration.y
+                        self.accelFilteredValue[2] = aFilteringFactor * self.accelFilteredValue[2]  + (1.0 - aFilteringFactor) * accelData.acceleration.z
+                        
+                        //angle calculation
+                        let x_val:Double = self.accelFilteredValue[0]
+                        let y_val:Double = self.accelFilteredValue[1]
+                        let z_val:Double = self.accelFilteredValue[2]
+                        
+                        // Work out the squares
+                        let y2:Double = y_val * y_val
+                        let z2:Double = z_val * z_val
+                        
+                        // Angle X-axis
+                        var resX = sqrt(y2 + z2)
+                        resX = x_val / resX
+                        self.axDegree = String(atan(resX) * (180 / Double.pi))
                     }
                 }
             }
