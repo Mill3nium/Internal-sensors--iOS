@@ -15,7 +15,6 @@ struct ContentView: View {
                 Text("Accelometer")
                     .font(.headline)
                     .padding()
-                Text("Angle (y): \(vm.ayDegree)")
                 Text("Angle (x): \(vm.axDegree)")
             }
         }.task {
