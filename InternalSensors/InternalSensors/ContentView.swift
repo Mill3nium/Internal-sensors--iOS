@@ -6,29 +6,19 @@ struct ContentView: View {
     var body: some View {
         Section{
             Form{
-                Text("GyroScope")
+                Text("GyroScope & Accelometer")
                     .font(.headline)
                     .padding()
-                Text("X: \(vm.gyroX)")
-                Text("Y: \(vm.gyroY)")
-                Text("Z: \(vm.gyroZ)")
-                Text("Angle : \(vm.gDegree)")
+                Text("ComPitch : \(vm.comPitchPlot)")
             }
             Form{
-                Text("Acceleration")
+                Text("Accelometer")
                     .font(.headline)
                     .padding()
-                Text("X: \(vm.accelX)")
-                Text("Y: \(vm.accelY)")
-                Text("Z: \(vm.accelZ)")
-                
                 Text("Angle (x): \(vm.axDegree)")
-                Text("Angle (y): \(vm.ayDegree)")
-
             }
         }.task {
-            vm.startGyrometer()
-            vm.startAccelometer()
+            vm.startGyrometerAndAccelometer()
         }
     }
 }
