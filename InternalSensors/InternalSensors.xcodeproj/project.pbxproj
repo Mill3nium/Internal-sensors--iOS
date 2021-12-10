@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6B14C7DD2763BD5B00BD6068 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B14C7DC2763BD5B00BD6068 /* SettingsView.swift */; };
 		6BB82B86275EA10E00DAEF0F /* InternalSensorsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB82B85275EA10E00DAEF0F /* InternalSensorsApp.swift */; };
 		6BB82B88275EA10E00DAEF0F /* MeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB82B87275EA10E00DAEF0F /* MeasureView.swift */; };
 		6BB82B8A275EA11000DAEF0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6BB82B89275EA11000DAEF0F /* Assets.xcassets */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6B14C7DC2763BD5B00BD6068 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		6BB82B82275EA10E00DAEF0F /* InternalSensors.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InternalSensors.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BB82B85275EA10E00DAEF0F /* InternalSensorsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalSensorsApp.swift; sourceTree = "<group>"; };
 		6BB82B87275EA10E00DAEF0F /* MeasureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureView.swift; sourceTree = "<group>"; };
@@ -81,10 +83,11 @@
 		6BC57AE027628D1800B62DA9 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				6BC57AE127628D6700B62DA9 /* NavigationBarView.swift */,
 				6BB82B87275EA10E00DAEF0F /* MeasureView.swift */,
 				6BC57AE327628EAC00B62DA9 /* GraphsView.swift */,
-				6BC57AE127628D6700B62DA9 /* NavigationBarView.swift */,
 				6BC57AE82762A2C300B62DA9 /* ButtonView.swift */,
+				6B14C7DC2763BD5B00BD6068 /* SettingsView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -165,6 +168,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B14C7DD2763BD5B00BD6068 /* SettingsView.swift in Sources */,
 				6BB82B94275FA3B800DAEF0F /* InternalSensorVM.swift in Sources */,
 				6BB82B88275EA10E00DAEF0F /* MeasureView.swift in Sources */,
 				6BC57AE92762A2C300B62DA9 /* ButtonView.swift in Sources */,

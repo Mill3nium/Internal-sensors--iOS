@@ -17,6 +17,10 @@ struct NavigationBarView: View {
                 Image(systemName: "slider.vertical.3")
                 Text("Graphs")
             }
+            SettingsView().tabItem{
+                Image(systemName: "gear")
+                Text("Settings")
+            }
         }
     }
 }

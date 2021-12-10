@@ -17,7 +17,6 @@ struct MeasureView: View {
                     .padding()
                 Text("AccPitch: \(vm.axDegree)")
             }
-
         }
             ButtonView()
         }
