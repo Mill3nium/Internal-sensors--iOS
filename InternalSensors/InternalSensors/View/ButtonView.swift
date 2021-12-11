@@ -10,6 +10,7 @@ struct ButtonView:View {
                 vm.stopGyrosAndAccelometer()
             }else{
                 vm.startGyrometerAndAccelometer()
+                vm.timer = Date.now
             }
         }, label: {
             Text(vm.isMeasuring ? "Stop" : "Start")
