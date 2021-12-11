@@ -4,6 +4,7 @@ struct MeasureView: View {
     @EnvironmentObject var vm : InternalSensorVM
     
     var body: some View {
+        VStack{
         Section{
             Form{
                 Text("GyroScope & Accelometer")
@@ -14,10 +15,10 @@ struct MeasureView: View {
                 Text("Accelometer")
                     .font(.headline)
                     .padding()
-                Text("Angle (x): \(vm.axDegree)")
+                Text("AccPitch: \(vm.axDegree)")
             }
-        }.task {
-            vm.startGyrometerAndAccelometer()
+        }
+            ButtonView()
         }
     }
 }

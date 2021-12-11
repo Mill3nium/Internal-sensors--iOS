@@ -5,30 +5,57 @@ import CoreMotion
 
 class InternalSensorVM : ObservableObject {
     
-    @Published var ayDegree:String = "-"
     @Published var axDegree:String = "-"
     @Published var comPitchPlot:String = "-"
     
-    // n-1 values
-    var accelFilteredValue: [Double] = [Double](repeating: 0, count: 3) // index: 0 = x, 1 = y, 2 = x
-    var comPitch: [Double] = [Double](repeating: 0, count: 1)
+    var timer:Date = Date.now
+    var isMeasuring:Bool = false
     
-    //needed to calculate dt?
-    var t1:Date = Date.now
-    var t2:Date = Date.now
+    // n-1 values
+    var accelFilteredValue: [Double] = [Double](repeating: 0, count: 3) // index: 0 = x, 1 = y, 2 = z
+    var comPitch:Double = 0
+    
+    var theMeasurements = [MeasurementModel]()
+    var index:Int = 0
     
     var motionManager = CMMotionManager()
+    var fm:FileManager = FileManager.default
+
+    // TODO: change saving location from phone to computer.
+    func saveToFile(){
+        //Saving location
+        print(fm.urls(for: .documentDirectory, in: .userDomainMask))
+    
+    }
+    
+    func stopGyrosAndAccelometer(){
+        self.isMeasuring = false
+        
+        self.motionManager.stopAccelerometerUpdates()
+        self.motionManager.stopGyroUpdates()
+        
+        self.axDegree = "-"
+        self.comPitchPlot = "-"
+        saveToFile()
+    }
     
     func startGyrometerAndAccelometer(){
-        
         //motionManager.accelerometerUpdateInterval = 0.2
         //motionManager.gyroUpdateInterval = 0.2
-        
+
         motionManager.startAccelerometerUpdates(to: OperationQueue.current!){ (data,error) in
             if let accelData = self.motionManager.accelerometerData{
                 
                 self.motionManager.startGyroUpdates(to: OperationQueue.current!){ (data,error) in
                     if let gyroData = self.motionManager.gyroData{
+                        
+                        //timer check
+                        if -self.timer.timeIntervalSinceNow > 10{
+                            self.isMeasuring = false
+                            self.stopGyrosAndAccelometer()
+                        } else {
+                            self.isMeasuring = true
+                        }
                         
                         let aX = accelData.acceleration.x
                         let aY = accelData.acceleration.y
@@ -38,7 +65,7 @@ class InternalSensorVM : ObservableObject {
                         
                         //accPitch calculation - Work out the squares
                         let aY2 = aY * aY
-                        let aZ2 = aZ * aY
+                        let aZ2 = aZ * aZ
                         
                         // Angle X-axis
                         var accPitchTemp = sqrt(aY2 + aZ2)
@@ -54,10 +81,10 @@ class InternalSensorVM : ObservableObject {
                         let alpha = 0.1
                         
                         // TODO: Add dT
-                        self.comPitch[0] = (1 - alpha) * (self.comPitch[0] + gY) + (alpha * accPitch)
+                        self.comPitch = (1 - alpha) * (self.comPitch + (gY)) + (alpha * accPitch)
                         //print("comPitch: ",self.comPitch[0])
                         
-                        self.comPitchPlot = String(self.comPitch[0])
+                        self.comPitchPlot = String(format:"%.5f °",self.comPitch)
                         
                         // EWMA filter
                         let aFilteringFactor = 0.1
@@ -78,7 +105,15 @@ class InternalSensorVM : ObservableObject {
                         // Angle X-axis
                         var resX = sqrt(y2 + z2)
                         resX = x_val / resX
-                        self.axDegree = String(atan(resX) * (180 / Double.pi))
+                        self.axDegree = String(format:"%.5f °",atan(resX) * (180 / Double.pi))
+                        
+                        let measurementsSlowMove = MeasurementModel(
+                            angleComPitch: self.comPitch,
+                            angleAccPitch: resX,
+                            time: Date.now
+                        )
+                        
+                        self.theMeasurements.append(measurementsSlowMove)
                     }
                 }
             }
