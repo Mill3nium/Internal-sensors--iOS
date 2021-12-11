@@ -17,10 +17,6 @@ struct NavigationBarView: View {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis")
                 Text("Movesense")
             }
-            GraphsView().tabItem{
-                Image(systemName: "slider.vertical.3")
-                Text("Graphs")
-            }
             SettingsView().tabItem{
                 Image(systemName: "gear")
                 Text("Settings")

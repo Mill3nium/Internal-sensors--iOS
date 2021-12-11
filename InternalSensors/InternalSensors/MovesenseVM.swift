@@ -15,6 +15,9 @@
 import Foundation
 import CoreBluetooth
 import SwiftUICharts
+import SwiftUI
+import UniformTypeIdentifiers
+import CSV
 
 class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, ObservableObject
 {
@@ -161,8 +164,6 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 byteArray.append(n)
             }
             
-            //            print(byteArray)
-            
             let response = byteArray[0];
             let reference = byteArray[1];
             
@@ -207,6 +208,10 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 }
                 
                 lastTime = time
+                
+                if recording {
+                    csvFile.write(ax, ay, az, gx, gy, gz)
+                }
             }
             
         case GATTCommand:
@@ -234,5 +239,19 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
         centralManager.stopScan()
         discoveredSensors = [:]
     }
+    
+    var recording = false
+    func startRecording() {
+        csvFile = CSVFile()
+        recording = true
+    }
+    
+    var showingExporter = false
+    func stopRecording() {
+        recording = false;
+        showingExporter = true;
+    }
+    
+    var csvFile = CSVFile()
     
 }

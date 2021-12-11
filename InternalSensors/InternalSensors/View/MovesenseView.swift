@@ -24,7 +24,8 @@ struct MovesenseView: View {
                 Button("Disconnect") {
                     sensor.disconnect()
                 }
-                .frame(width: 120, height: 40, alignment: .center)
+                .frame(alignment: .center)
+                .padding(10)
                 .background(Color.red)
                 .foregroundColor(.white)
                 .cornerRadius(8)
@@ -38,6 +39,31 @@ struct MovesenseView: View {
                     legend: "\(x), \(y), \(z)",
                     form: ChartForm.large
                 )
+                
+                Button(movesense.recording ? "Stop recording" : "Start recording") {
+                    movesense.recording ? movesense.stopRecording() : movesense.startRecording()
+                }
+                .frame(alignment: .center)
+                .padding(15)
+                .background(movesense.recording ? Color.red : Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+                .fileExporter(
+                    isPresented: $movesense.showingExporter,
+                    document: movesense.csvFile,
+                    contentType: .commaSeparatedText,
+                    defaultFilename: "movesense.csv"
+                ){ result in
+                    switch result {
+                    case .success(let url):
+                        print("Saved to \(url)")
+                    case .failure(let error):
+                        print(error.localizedDescription)
+                    }
+                    
+                    movesense.showingExporter = false
+                }
+                
             }
         }
     }
