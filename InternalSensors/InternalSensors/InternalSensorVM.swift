@@ -1,122 +1,119 @@
 import Foundation
 import CoreMotion
-
-
+import SwiftUICharts
 
 class InternalSensorVM : ObservableObject {
-    
-    @Published var axDegree:String = "-"
-    @Published var comPitchPlot:String = "-"
-    
-    var timer:Date = Date.now
-    var isMeasuring:Bool = false
-    
-    // n-1 values
-    var accelFilteredValue: [Double] = [Double](repeating: 0, count: 3) // index: 0 = x, 1 = y, 2 = z
-    var comPitch:Double = 0
-    
-    var theMeasurements = [MeasurementModel]()
-    var index:Int = 0
-    
     var motionManager = CMMotionManager()
-    var fm:FileManager = FileManager.default
-
-    // TODO: change saving location from phone to computer.
-    func saveToFile(){
-        //Saving location
-        print(fm.urls(for: .documentDirectory, in: .userDomainMask))
     
-    }
+    @Published var last20ax = Array(repeating: Double(0), count: 100)
+    @Published var last20ay = Array(repeating: Double(0), count: 100)
+    @Published var last20az = Array(repeating: Double(0), count: 100)
+    @Published var chartData: [([Double], GradientColor)] = [
+        ([], GradientColors.orange),
+        ([], GradientColors.green),
+        ([], GradientColors.blue),
+    ]
+    @Published var accPitch = 0.0
+    var lastTime: Date?
+    @Published var comPitch = 0.0
+    var lastComPitch = 0.0
     
-    func stopGyrosAndAccelometer(){
-        self.isMeasuring = false
-        
-        self.motionManager.stopAccelerometerUpdates()
-        self.motionManager.stopGyroUpdates()
-        
-        self.axDegree = "-"
-        self.comPitchPlot = "-"
-        saveToFile()
-    }
-    
-    func startGyrometerAndAccelometer(){
+    func startMonitor() {
         //motionManager.accelerometerUpdateInterval = 0.2
         //motionManager.gyroUpdateInterval = 0.2
-
+        
         motionManager.startAccelerometerUpdates(to: OperationQueue.current!){ (data,error) in
             if let accelData = self.motionManager.accelerometerData{
                 
                 self.motionManager.startGyroUpdates(to: OperationQueue.current!){ (data,error) in
                     if let gyroData = self.motionManager.gyroData{
                         
-                        //timer check
-                        if -self.timer.timeIntervalSinceNow > 10{
-                            self.isMeasuring = false
-                            self.stopGyrosAndAccelometer()
-                        } else {
-                            self.isMeasuring = true
+                        // Get acceleration
+                        let ax = accelData.acceleration.x
+                        let ay = accelData.acceleration.y
+                        let az = accelData.acceleration.z
+                        self.last20ax.remove(at: 0); self.last20ax.append(Double(ax));
+                        self.last20ay.remove(at: 0); self.last20ay.append(Double(ay));
+                        self.last20az.remove(at: 0); self.last20az.append(Double(az));
+                        self.chartData = [
+                            (self.last20ax, GradientColors.orange),
+                            (self.last20ay, GradientColors.green),
+                            (self.last20az, GradientColors.blue),
+                        ]
+                        
+                        // Calculate acceleration pitch
+                        let ay2 = ay * ay
+                        let az2 = az * az
+                        self.accPitch = atan( ax / sqrt(ay2 + az2) ) * (180 / Double.pi)
+                        
+                        // Get gyroscope
+                        let gx = gyroData.rotationRate.x
+                        let gy = gyroData.rotationRate.y
+                        let gz = gyroData.rotationRate.z
+                        
+                        let time = Date.now
+                        if let lastTime = self.lastTime {
+                            let dt = (time - lastTime)
+                            let a = 0.5
+                            self.comPitch = (1-a) * (self.lastComPitch + dt*gy) + a*self.accPitch;
+                            self.lastComPitch = self.comPitch
                         }
                         
-                        let aX = accelData.acceleration.x
-                        let aY = accelData.acceleration.y
-                        let aZ = accelData.acceleration.z
+                        self.lastTime = time
                         
-                        let gY = gyroData.rotationRate.y
-                        
-                        //accPitch calculation - Work out the squares
-                        let aY2 = aY * aY
-                        let aZ2 = aZ * aZ
-                        
-                        // Angle X-axis
-                        var accPitchTemp = sqrt(aY2 + aZ2)
-                        accPitchTemp = (aX / accPitchTemp)
-                        accPitchTemp = atan(accPitchTemp) * (180 / Double.pi)
-                        
-                        var accPitch:Double = 0
-                        if !accPitchTemp.isNaN && !accPitchTemp.isInfinite{
-                            accPitch = accPitchTemp
+                        if self.isRecording {
+                            self.csvFile.write(time, ax, ay, az, gx, gy, gz)
+                            
+                            if Date.now - self.timeRecordingStarted > 10 {
+                                self.stopRecording()
+                            }
                         }
-                        
-                        // Complementary filter
-                        let alpha = 0.1
-                        
-                        // TODO: Add dT
-                        self.comPitch = (1 - alpha) * (self.comPitch + (gY)) + (alpha * accPitch)
-                        //print("comPitch: ",self.comPitch[0])
-                        
-                        self.comPitchPlot = String(format:"%.5f °",self.comPitch)
                         
                         // EWMA filter
-                        let aFilteringFactor = 0.1
-                        
-                        self.accelFilteredValue[0] = aFilteringFactor * self.accelFilteredValue[0]  + (1.0 - aFilteringFactor) * accelData.acceleration.x
-                        self.accelFilteredValue[1] = aFilteringFactor * self.accelFilteredValue[1]  + (1.0 - aFilteringFactor) * accelData.acceleration.y
-                        self.accelFilteredValue[2] = aFilteringFactor * self.accelFilteredValue[2]  + (1.0 - aFilteringFactor) * accelData.acceleration.z
-                        
-                        //angle calculation
-                        let x_val:Double = self.accelFilteredValue[0]
-                        let y_val:Double = self.accelFilteredValue[1]
-                        let z_val:Double = self.accelFilteredValue[2]
-                        
-                        // Work out the squares
-                        let y2:Double = y_val * y_val
-                        let z2:Double = z_val * z_val
-                        
-                        // Angle X-axis
-                        var resX = sqrt(y2 + z2)
-                        resX = x_val / resX
-                        self.axDegree = String(format:"%.5f °",atan(resX) * (180 / Double.pi))
-                        
-                        let measurementsSlowMove = MeasurementModel(
-                            angleComPitch: self.comPitch,
-                            angleAccPitch: resX,
-                            time: Date.now
-                        )
-                        
-                        self.theMeasurements.append(measurementsSlowMove)
+//                        let aFilteringFactor = 0.1
+//
+//                        self.accelFilteredValue[0] = aFilteringFactor * self.accelFilteredValue[0]  + (1.0 - aFilteringFactor) * accelData.acceleration.x
+//                        self.accelFilteredValue[1] = aFilteringFactor * self.accelFilteredValue[1]  + (1.0 - aFilteringFactor) * accelData.acceleration.y
+//                        self.accelFilteredValue[2] = aFilteringFactor * self.accelFilteredValue[2]  + (1.0 - aFilteringFactor) * accelData.acceleration.z
+//
+//                        //angle calculation
+//                        let x_val:Double = self.accelFilteredValue[0]
+//                        let y_val:Double = self.accelFilteredValue[1]
+//                        let z_val:Double = self.accelFilteredValue[2]
+//
+//                        // Work out the squares
+//                        let y2:Double = y_val * y_val
+//                        let z2:Double = z_val * z_val
+//
+//                        // Angle X-axis
+//                        var resX = sqrt(y2 + z2)
+//                        resX = x_val / resX
+//                        self.axDegree = String(format:"%.5f °",atan(resX) * (180 / Double.pi))
                     }
                 }
             }
         }
+    }
+    
+    var timeRecordingStarted = Date.now
+    @Published var isRecording = false
+    func startRecording() {
+        csvFile = CSVFile()
+        timeRecordingStarted = Date.now
+        isRecording = true
+    }
+    
+    @Published var showingExporter = false
+    func stopRecording() {
+        isRecording = false;
+        showingExporter = true;
+    }
+    
+    var csvFile = CSVFile()
+}
+
+extension Date {
+    static func - (lhs: Date, rhs: Date) -> TimeInterval {
+        return lhs.timeIntervalSinceReferenceDate - rhs.timeIntervalSinceReferenceDate
     }
 }

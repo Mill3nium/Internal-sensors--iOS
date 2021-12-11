@@ -2,23 +2,22 @@ import SwiftUI
 import SwiftUICharts
 
 struct MovesenseView: View {
-    @EnvironmentObject var vm : InternalSensorVM
-    @StateObject var movesense = MovesenseVM()
+    @StateObject var vm = MovesenseVM()
     
     var body: some View {
         VStack {
-            if movesense.connectedSensor == nil {
+            if vm.connectedSensor == nil {
                 Text("Select sensor to connect")
-                List(Array(movesense.discoveredSensors.values)) { sensor in
+                List(Array(vm.discoveredSensors.values)) { sensor in
                     Button(sensor.peripheral.name!) {
                         sensor.connect()
                     }
                 }
                 .task {
-                    movesense.startDiscovery()
+                    vm.startDiscovery()
                 }
             } else {
-                let sensor = movesense.connectedSensor!
+                let sensor = vm.connectedSensor!
                 
                 Text("Connected to \(sensor.peripheral.name!)")
                 Button("Disconnect") {
@@ -30,27 +29,27 @@ struct MovesenseView: View {
                 .foregroundColor(.white)
                 .cornerRadius(8)
                 
-                let x = String(format: "x 🔴: %.2f", movesense.last20ax[movesense.last20ax.count-1])
-                let y = String(format: "y 🟢: %.2f", movesense.last20ay[movesense.last20ay.count-1])
-                let z = String(format: "z 🔵: %.2f", movesense.last20az[movesense.last20az.count-1])
+                let x = String(format: "x 🔴: %.2f", vm.last20ax[vm.last20ax.count-1])
+                let y = String(format: "y 🟢: %.2f", vm.last20ay[vm.last20ay.count-1])
+                let z = String(format: "z 🔵: %.2f", vm.last20az[vm.last20az.count-1])
                 MultiLineChartView(
-                    data: movesense.chartData,
+                    data: vm.chartData,
                     title: "Acceleration",
                     legend: "\(x), \(y), \(z)",
                     form: ChartForm.large
                 )
                 
-                Button(movesense.recording ? "Stop recording" : "Start recording") {
-                    movesense.recording ? movesense.stopRecording() : movesense.startRecording()
+                Button(vm.recording ? "Stop recording" : "Start recording") {
+                    vm.recording ? vm.stopRecording() : vm.startRecording()
                 }
                 .frame(alignment: .center)
                 .padding(15)
-                .background(movesense.recording ? Color.red : Color.green)
+                .background(vm.recording ? Color.red : Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(8)
                 .fileExporter(
-                    isPresented: $movesense.showingExporter,
-                    document: movesense.csvFile,
+                    isPresented: $vm.showingExporter,
+                    document: vm.csvFile,
                     contentType: .commaSeparatedText,
                     defaultFilename: "movesense.csv"
                 ){ result in
@@ -61,7 +60,7 @@ struct MovesenseView: View {
                         print(error.localizedDescription)
                     }
                     
-                    movesense.showingExporter = false
+                    vm.showingExporter = false
                 }
                 
             }

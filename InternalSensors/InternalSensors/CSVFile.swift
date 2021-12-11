@@ -17,8 +17,19 @@ struct CSVFile: FileDocument {
     // by default our document is empty
     private let csv: CSVWriter
     
-    func write(_ ax: Float, _ ay: Float, _ az: Float, _ gx: Float, _ gy: Float, _ gz: Float) {
+    func write(_ time: UInt32, _ ax: Float, _ ay: Float, _ az: Float, _ gx: Float, _ gy: Float, _ gz: Float) {
         try! csv.write(row: ["\(ax)", "\(ay)", "\(az)", "\(gx)", "\(gy)", "\(gz)"])
+    }
+    func write(_ time: Date, _ ax: Double, _ ay: Double, _ az: Double, _ gx: Double, _ gy: Double, _ gz: Double) {
+        try! csv.write(row: [
+            "\(time.timeIntervalSince1970)",
+            "\(ax)",
+            "\(ay)",
+            "\(az)",
+            "\(gx)",
+            "\(gy)",
+            "\(gz)"
+        ])
     }
     
     init() {

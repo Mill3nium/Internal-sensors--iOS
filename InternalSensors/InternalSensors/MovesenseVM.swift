@@ -170,27 +170,23 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 
                 let ay2 = ay * ay
                 let az2 = az * az
-                // Angle X-axis
                 let accPitch = atan( ax / sqrt(ay2 + az2) ) * (180 / Float.pi)
-                //                print("Acc pitch - \(accPitch)")
                 
                 let gx = bytesToFloat(bytes: [byteArray[21], byteArray[20], byteArray[19], byteArray[18]])
                 let gy = bytesToFloat(bytes: [byteArray[25], byteArray[24], byteArray[23], byteArray[22]])
                 let gz = bytesToFloat(bytes: [byteArray[29], byteArray[28], byteArray[27], byteArray[26]])
-                //                print("Gyro - X:\(Xgyro) Y:\(Ygyro)  Z:\(Zgyro)")
                 
                 if lastTime != 0 {
                     let dt = Float(time - lastTime)/1000
                     let a: Float = 0.5
                     let comPitch = (1-a) * (lastComPitch + dt*gy) + a*accPitch;
                     lastComPitch = comPitch
-                    //                    print("Com pitch - \(lastComPitch)")
                 }
                 
                 lastTime = time
                 
                 if recording {
-                    csvFile.write(ax, ay, az, gx, gy, gz)
+                    csvFile.write(time, ax, ay, az, gx, gy, gz)
                 }
             }
             
@@ -220,13 +216,13 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
         discoveredSensors = [:]
     }
     
-    var recording = false
+    @Published var recording = false
     func startRecording() {
         csvFile = CSVFile()
         recording = true
     }
     
-    var showingExporter = false
+    @Published var showingExporter = false
     func stopRecording() {
         recording = false;
         showingExporter = true;
