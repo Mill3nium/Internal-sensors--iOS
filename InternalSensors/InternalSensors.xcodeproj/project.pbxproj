@@ -12,6 +12,7 @@
 		2901BED1276463F4002EC1BC /* CSV in Frameworks */ = {isa = PBXBuildFile; productRef = 2901BED0276463F4002EC1BC /* CSV */; };
 		2901BED327646B8B002EC1BC /* CSVFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2901BED227646B8B002EC1BC /* CSVFile.swift */; };
 		6B14C7DD2763BD5B00BD6068 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B14C7DC2763BD5B00BD6068 /* SettingsView.swift */; };
+		6B14C7DF2763CCB700BD6068 /* MeasurementModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B14C7DE2763CCB700BD6068 /* MeasurementModel.swift */; };
 		6BB82B86275EA10E00DAEF0F /* InternalSensorsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB82B85275EA10E00DAEF0F /* InternalSensorsApp.swift */; };
 		6BB82B88275EA10E00DAEF0F /* MeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB82B87275EA10E00DAEF0F /* MeasureView.swift */; };
 		6BB82B8A275EA11000DAEF0F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6BB82B89275EA11000DAEF0F /* Assets.xcassets */; };
@@ -28,6 +29,7 @@
 		2901BEB12763D149002EC1BC /* MovesenseVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovesenseVM.swift; sourceTree = "<group>"; };
 		2901BED227646B8B002EC1BC /* CSVFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSVFile.swift; sourceTree = "<group>"; };
 		6B14C7DC2763BD5B00BD6068 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6B14C7DE2763CCB700BD6068 /* MeasurementModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasurementModel.swift; sourceTree = "<group>"; };
 		6BB82B82275EA10E00DAEF0F /* InternalSensors.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InternalSensors.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BB82B85275EA10E00DAEF0F /* InternalSensorsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InternalSensorsApp.swift; sourceTree = "<group>"; };
 		6BB82B87275EA10E00DAEF0F /* MeasureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeasureView.swift; sourceTree = "<group>"; };
@@ -52,6 +54,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6B14C7FA2763E75100BD6068 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				6B14C7DE2763CCB700BD6068 /* MeasurementModel.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		6BB82B79275EA10E00DAEF0F = {
 			isa = PBXGroup;
 			children = (
@@ -74,6 +84,7 @@
 				2901BED227646B8B002EC1BC /* CSVFile.swift */,
 				2901BEB12763D149002EC1BC /* MovesenseVM.swift */,
 				6BB82B85275EA10E00DAEF0F /* InternalSensorsApp.swift */,
+				6B14C7FA2763E75100BD6068 /* Model */,
 				6BB82B93275FA3B800DAEF0F /* InternalSensorVM.swift */,
 				6BC57AE027628D1800B62DA9 /* View */,
 				6BB82B89275EA11000DAEF0F /* Assets.xcassets */,
@@ -181,6 +192,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B14C7DF2763CCB700BD6068 /* MeasurementModel.swift in Sources */,
 				6B14C7DD2763BD5B00BD6068 /* SettingsView.swift in Sources */,
 				2901BEB02763CC27002EC1BC /* MovesenseView.swift in Sources */,
 				2901BED327646B8B002EC1BC /* CSVFile.swift in Sources */,
@@ -322,7 +334,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"InternalSensors/Preview Content\"";
-				DEVELOPMENT_TEAM = HRG8WP7U6A;
+				DEVELOPMENT_TEAM = Y5N8AH8N8Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "";
@@ -336,7 +348,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = LeoZaki.InternalSensors;
+				PRODUCT_BUNDLE_IDENTIFIER = InternalSensors;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -354,7 +366,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"InternalSensors/Preview Content\"";
-				DEVELOPMENT_TEAM = HRG8WP7U6A;
+				DEVELOPMENT_TEAM = Y5N8AH8N8Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "";
@@ -368,7 +380,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = LeoZaki.InternalSensors;
+				PRODUCT_BUNDLE_IDENTIFIER = InternalSensors;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
