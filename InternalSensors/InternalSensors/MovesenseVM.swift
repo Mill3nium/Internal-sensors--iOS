@@ -16,29 +16,9 @@ import Foundation
 import CoreBluetooth
 import SwiftUICharts
 
-class SensorManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, ObservableObject
+class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, ObservableObject
 {
-    struct Log: TextOutputStream {
-        
-        func write(_ string: String) {
-            let fm = FileManager.default
-            let log = fm.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("logLong.txt")
-            if let handle = try? FileHandle(forWritingTo: log) {
-                handle.seekToEndOfFile()
-                handle.write(string.data(using: .utf8)!)
-                handle.closeFile()
-            } else {
-                try? string.data(using: .utf8)?.write(to: log)
-            }
-        }
-    }
-    
     var centralManager: CBCentralManager!
-    var logger = Log()
-    
-    var charData: CBCharacteristic!
-    var sensorPeripheral: CBPeripheral!
-    private var bluetoothDevices: [CBPeripheral] = []
     
     let GATTService = CBUUID(string: "34802252-7185-4d5d-b431-630e7050e8f0")
     let GATTCommand = CBUUID(string: "34800001-7185-4d5d-b431-630e7050e8f0")
@@ -65,12 +45,12 @@ class SensorManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, O
     }
     
     class Sensor: Identifiable {
-        let manager: SensorManager
+        let manager: MovesenseVM
         let peripheral: CBPeripheral
         
         var last20ax = Array(repeating: 100.0, count: 20)
         
-        init(_ peripheral: CBPeripheral, _ manager: SensorManager) {
+        init(_ peripheral: CBPeripheral, _ manager: MovesenseVM) {
             self.peripheral = peripheral
             self.manager = manager
         }
@@ -236,7 +216,6 @@ class SensorManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, O
             print("Unhandled Characteristic UUID:")
         }
     }
-    
     
     func bytesToFloat(bytes b: [UInt8]) -> Float {
         let bigEndianValue = b.withUnsafeBufferPointer {
