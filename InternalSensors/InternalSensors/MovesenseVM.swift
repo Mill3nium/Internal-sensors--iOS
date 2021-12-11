@@ -1,16 +1,3 @@
-//
-//  BluetoothConnect.swift
-//  MovesenseOSX20
-//
-//  Created by Jonas Willén on 2020-10-13.
-//
-//  Under Signing&Capabilities -> App sandbox click in Bluetooth
-//  In the Info.plist add the key Privacy - BluetoothAlwaysUsageDescription
-//  and a string like the one bellow
-// <string>Our app does not request this permission or utilize this functionality
-// but it is included in our info.plist since our app utilizes the react-native-permissions
-// library, which references this permission in its code.</string>
-
 
 import Foundation
 import CoreBluetooth
@@ -50,8 +37,6 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
     class Sensor: Identifiable {
         let manager: MovesenseVM
         let peripheral: CBPeripheral
-        
-        var last20ax = Array(repeating: 100.0, count: 20)
         
         init(_ peripheral: CBPeripheral, _ manager: MovesenseVM) {
             self.peripheral = peripheral
@@ -114,8 +99,6 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 // Possible sample rates are [13 26 52 104 208 416 833]
                 // Link to api https://bitbucket.org/suunto/movesense-device-lib/src/master/
                 
-                
-                
                 // The string 190/Meas/Gyro/52 to ascii
                 //let parameter:[UInt8]  = [1, 90, 47, 77, 101, 97, 115, 47, 71, 121, 114, 111, 47, 53, 50]
                 
@@ -127,14 +110,11 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 
                 //let parameter:[UInt8] = [2, 99]
                 
-                
                 let data = NSData(bytes: parameter, length: parameter.count);
                 
                 peripheral.writeValue(data as Data, for: characteristic, type: CBCharacteristicWriteType.withResponse)
                 
-                
                 print("Command3 \(parameter.count)")
-                
             }
         }
     }
@@ -253,5 +233,4 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
     }
     
     var csvFile = CSVFile()
-    
 }

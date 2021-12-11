@@ -17,10 +17,6 @@ struct NavigationBarView: View {
                 Image(systemName: "rectangle.and.pencil.and.ellipsis")
                 Text("Movesense")
             }
-            SettingsView().tabItem{
-                Image(systemName: "gear")
-                Text("Settings")
-            }
         }
     }
 }
