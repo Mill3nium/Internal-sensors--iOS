@@ -6,25 +6,18 @@ struct InternalSensorsView: View {
     
     var body: some View {
         VStack {
-            Text("GyroScope & Accelometer")
-                .font(.headline)
-                .padding()
-            Text("ComPitch : \(String(format: "%.2lf°", vm.comPitch))")
-            
-            Text("Accelometer")
-                .font(.headline)
-                .padding()
-            Text("AccPitch: \(String(format: "%.2lf°", vm.accPitch))")
-            
-            let x = String(format: "x 🔴: %.2f", vm.last20ax[vm.last20ax.count-1])
-            let y = String(format: "y 🟢: %.2f", vm.last20ay[vm.last20ay.count-1])
-            let z = String(format: "z 🔵: %.2f", vm.last20az[vm.last20az.count-1])
+            let x = String(format: "x 🔴: %.2f", vm.last100ax[vm.last100ax.count-1])
+            let y = String(format: "y 🟢: %.2f", vm.last100ay[vm.last100ay.count-1])
+            let z = String(format: "z 🔵: %.2f", vm.last100az[vm.last100az.count-1])
             MultiLineChartView(
                 data: vm.chartData,
                 title: "Acceleration",
                 legend: "\(x), \(y), \(z)",
                 form: ChartForm.large
             )
+            
+            Text("AccPitch: \(String(format: "%.2lf°", vm.accPitch))")
+            Text("ComPitch : \(String(format: "%.2lf°", vm.comPitch))")
             
             Button(vm.isRecording ? "Stop recording" : "Start recording") {
                 vm.isRecording ? vm.stopRecording() : vm.startRecording()
@@ -52,6 +45,18 @@ struct InternalSensorsView: View {
             
             if vm.isRecording {
                 Text("Recording for \(String(format: "%.1lf", Date.now - vm.timeRecordingStarted))s")
+            }
+            
+            HStack {
+                Text("Interval:")
+                let frequencies: [Double] = [10, 20, 30, 40, 50, 100, 200, 300]
+                Picker("Frequency", selection: $vm.selectedFrequency) {
+                    ForEach(frequencies, id: \.self) {
+                        Text("\(String(format: "%.0f", $0)) ms")
+                    }
+                }.onChange(of: vm.selectedFrequency) { _ in
+                    vm.setFreq()
+                }
             }
         }
         .task {

@@ -5,9 +5,16 @@ import SwiftUICharts
 class InternalSensorVM : ObservableObject {
     var motionManager = CMMotionManager()
     
-    @Published var last20ax = Array(repeating: Double(0), count: 100)
-    @Published var last20ay = Array(repeating: Double(0), count: 100)
-    @Published var last20az = Array(repeating: Double(0), count: 100)
+    @Published var selectedFrequency = 30.0
+    func setFreq() {
+        motionManager.accelerometerUpdateInterval = selectedFrequency/1000
+        motionManager.gyroUpdateInterval = selectedFrequency/1000
+        print(selectedFrequency)
+    }
+    
+    @Published var last100ax = Array(repeating: Double(0), count: 100)
+    @Published var last100ay = Array(repeating: Double(0), count: 100)
+    @Published var last100az = Array(repeating: Double(0), count: 100)
     @Published var chartData: [([Double], GradientColor)] = [
         ([], GradientColors.orange),
         ([], GradientColors.green),
@@ -18,9 +25,13 @@ class InternalSensorVM : ObservableObject {
     @Published var comPitch = 0.0
     var lastComPitch = 0.0
     
+    func stopMonitor() {
+        motionManager.stopAccelerometerUpdates()
+        motionManager.stopGyroUpdates()
+    }
+    
     func startMonitor() {
-        //motionManager.accelerometerUpdateInterval = 0.2
-        //motionManager.gyroUpdateInterval = 0.2
+        setFreq()
         
         motionManager.startAccelerometerUpdates(to: OperationQueue.current!){ (data,error) in
             
@@ -33,13 +44,13 @@ class InternalSensorVM : ObservableObject {
                     let ax = accelData.acceleration.x
                     let ay = accelData.acceleration.y
                     let az = accelData.acceleration.z
-                    self.last20ax.remove(at: 0); self.last20ax.append(Double(ax));
-                    self.last20ay.remove(at: 0); self.last20ay.append(Double(ay));
-                    self.last20az.remove(at: 0); self.last20az.append(Double(az));
+                    self.last100ax.remove(at: 0); self.last100ax.append(Double(ax));
+                    self.last100ay.remove(at: 0); self.last100ay.append(Double(ay));
+                    self.last100az.remove(at: 0); self.last100az.append(Double(az));
                     self.chartData = [
-                        (self.last20ax, GradientColors.orange),
-                        (self.last20ay, GradientColors.green),
-                        (self.last20az, GradientColors.blue),
+                        (self.last100ax, GradientColors.orange),
+                        (self.last100ay, GradientColors.green),
+                        (self.last100az, GradientColors.blue),
                     ]
                     
                     // Calculate acceleration pitch
