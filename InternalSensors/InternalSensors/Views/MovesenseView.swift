@@ -43,12 +43,12 @@ struct MovesenseView: View {
                 Text("Method 1: \(String(format: "%.2lf°", vm.ewmaPitch))")
                 Text("Method 2: \(String(format: "%.2lf°", vm.comPitch))")
                 
-                Button(vm.recording ? "Stop recording" : "Start recording") {
-                    vm.recording ? vm.stopRecording() : vm.startRecording()
+                Button(vm.isRecording ? "Stop recording" : "Start recording") {
+                    vm.isRecording ? vm.stopRecording() : vm.startRecording()
                 }
                 .frame(alignment: .center)
                 .padding(15)
-                .background(vm.recording ? Color.red : Color.green)
+                .background(vm.isRecording ? Color.red : Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(8)
                 .fileExporter(

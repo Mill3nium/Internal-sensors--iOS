@@ -201,8 +201,11 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 
                 lastTime = time
                 
-                if recording {
+                if isRecording {
                     csvFile.write(time, ax, ay, az, gx, gy, gz)
+                    if Date.now - self.timeRecordingStarted > 10 {
+                        self.stopRecording()
+                    }
                 }
             }
             
@@ -232,15 +235,16 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
         discoveredSensors = [:]
     }
     
-    @Published var recording = false
+    var timeRecordingStarted = Date.now
+    @Published var isRecording = false
     func startRecording() {
         csvFile = CSVFile()
-        recording = true
+        isRecording = true
     }
     
     @Published var showingExporter = false
     func stopRecording() {
-        recording = false;
+        isRecording = false;
         showingExporter = true;
     }
     
