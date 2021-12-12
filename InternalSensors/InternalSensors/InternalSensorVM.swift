@@ -9,7 +9,6 @@ class InternalSensorVM : ObservableObject {
     func setFreq() {
         motionManager.accelerometerUpdateInterval = selectedFrequency/1000
         motionManager.gyroUpdateInterval = selectedFrequency/1000
-        print(selectedFrequency)
     }
     
     @Published var last100ax = Array(repeating: Double(0), count: 100)
@@ -20,15 +19,12 @@ class InternalSensorVM : ObservableObject {
         ([], GradientColors.green),
         ([], GradientColors.blue),
     ]
-    @Published var accPitch = 0.0
+    @Published var ewmaPitch = 0.0
     var lastTime: Date?
     @Published var comPitch = 0.0
     var lastComPitch = 0.0
     
-    func stopMonitor() {
-        motionManager.stopAccelerometerUpdates()
-        motionManager.stopGyroUpdates()
-    }
+    var filteredAccel = [0.0, 0.0, 0.0]
     
     func startMonitor() {
         setFreq()
@@ -53,22 +49,41 @@ class InternalSensorVM : ObservableObject {
                         (self.last100az, GradientColors.blue),
                     ]
                     
-                    // Calculate acceleration pitch
-                    let ay2 = ay * ay
-                    let az2 = az * az
-                    self.accPitch = atan( ax / sqrt(ay2 + az2) ) * (180 / Double.pi)
-                    
-                    // Get gyroscope
+                    // Get gyro
                     let gx = gyroData.rotationRate.x
                     let gy = gyroData.rotationRate.y
                     let gz = gyroData.rotationRate.z
                     
                     let time = Date.now
-                    if let lastTime = self.lastTime {
-                        let dt = (time - lastTime)
-                        let a = 0.5
-                        self.comPitch = (1-a) * (self.lastComPitch + dt*gy) + a*self.accPitch;
-                        self.lastComPitch = self.comPitch
+                    
+                    // Method 1: Calculate EWMA pitch
+                    do {
+                        let a = 0.2
+                        self.filteredAccel = [
+                            a * self.filteredAccel[0] + (1-a)*ax,
+                            a * self.filteredAccel[1] + (1-a)*ay,
+                            a * self.filteredAccel[2] + (1-a)*az,
+                        ]
+                        let ax = self.filteredAccel[0]
+                        let ay = self.filteredAccel[1]
+                        let az = self.filteredAccel[2]
+                        let ay2 = ay * ay
+                        let az2 = az * az
+                        self.ewmaPitch = atan(ax / sqrt(ay2 + az2) ) * (180 / Double.pi)
+                    }
+                    
+                    // Method 2
+                    do {
+                        if let lastTime = self.lastTime {
+                            // Calculate acceleration pitch
+                            let ay2 = ay * ay
+                            let az2 = az * az
+                            let accPitch = atan( ax / sqrt(ay2 + az2) ) * (180 / Double.pi)
+                            let dt = (time - lastTime)
+                            let a = 0.5
+                            self.comPitch = (1-a) * (self.lastComPitch + dt*gy) + a*accPitch;
+                            self.lastComPitch = self.comPitch
+                        }
                     }
                     
                     self.lastTime = time
@@ -80,30 +95,14 @@ class InternalSensorVM : ObservableObject {
                             self.stopRecording()
                         }
                     }
-                    
-                    // EWMA filter
-    //                        let aFilteringFactor = 0.1
-    //
-    //                        self.accelFilteredValue[0] = aFilteringFactor * self.accelFilteredValue[0]  + (1.0 - aFilteringFactor) * accelData.acceleration.x
-    //                        self.accelFilteredValue[1] = aFilteringFactor * self.accelFilteredValue[1]  + (1.0 - aFilteringFactor) * accelData.acceleration.y
-    //                        self.accelFilteredValue[2] = aFilteringFactor * self.accelFilteredValue[2]  + (1.0 - aFilteringFactor) * accelData.acceleration.z
-    //
-    //                        //angle calculation
-    //                        let x_val:Double = self.accelFilteredValue[0]
-    //                        let y_val:Double = self.accelFilteredValue[1]
-    //                        let z_val:Double = self.accelFilteredValue[2]
-    //
-    //                        // Work out the squares
-    //                        let y2:Double = y_val * y_val
-    //                        let z2:Double = z_val * z_val
-    //
-    //                        // Angle X-axis
-    //                        var resX = sqrt(y2 + z2)
-    //                        resX = x_val / resX
-    //                        self.axDegree = String(format:"%.5f °",atan(resX) * (180 / Double.pi))
                 }
             }
         }
+    }
+    
+    func stopMonitor() {
+        motionManager.stopAccelerometerUpdates()
+        motionManager.stopGyroUpdates()
     }
     
     var timeRecordingStarted = Date.now

@@ -16,8 +16,9 @@ struct InternalSensorsView: View {
                 form: ChartForm.large
             )
             
-            Text("AccPitch: \(String(format: "%.2lf°", vm.accPitch))")
-            Text("ComPitch : \(String(format: "%.2lf°", vm.comPitch))")
+            Text("Pitch")
+            Text("Method 1: \(String(format: "%.2lf°", vm.ewmaPitch))")
+            Text("Method 2: \(String(format: "%.2lf°", vm.comPitch))")
             
             Button(vm.isRecording ? "Stop recording" : "Start recording") {
                 vm.isRecording ? vm.stopRecording() : vm.startRecording()

@@ -119,16 +119,20 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
         }
     }
     
-    @Published var last20ax = Array(repeating: Double(0), count: 100)
-    @Published var last20ay = Array(repeating: Double(0), count: 100)
-    @Published var last20az = Array(repeating: Double(0), count: 100)
+    @Published var last100ax = Array(repeating: Double(0), count: 100)
+    @Published var last100ay = Array(repeating: Double(0), count: 100)
+    @Published var last100az = Array(repeating: Double(0), count: 100)
     @Published var chartData: [([Double], GradientColor)] = [
         ([], GradientColors.orange),
         ([], GradientColors.green),
         ([], GradientColors.blue),
     ]
-    var lastTime: UInt32 = 0
+    var lastTime: UInt32?
     var lastComPitch: Float = 0.0
+    @Published var comPitch: Float = 0
+    var filteredAccel: [Float] = [0.0, 0.0, 0.0]
+    var ewmaPitch: Float = 0
+    
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic,
                     error: Error?) {
         
@@ -152,35 +156,47 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 var time : UInt32 = 0
                 let data = NSData(bytes: array, length: 4)
                 data.getBytes(&time, length: 4)
-                //                print(time)
                 
                 let ax = bytesToFloat(bytes: [byteArray[9], byteArray[8], byteArray[7], byteArray[6]])
                 let ay = bytesToFloat(bytes: [byteArray[13], byteArray[12], byteArray[11], byteArray[10]])
                 let az = bytesToFloat(bytes: [byteArray[17], byteArray[16], byteArray[15], byteArray[14]])
-                //                print("Acc - X:\(ax) Y:\(ay)  Z:\(az)")
-                
-                last20ax.remove(at: 0); last20ax.append(Double(ax));
-                last20ay.remove(at: 0); last20ay.append(Double(ay));
-                last20az.remove(at: 0); last20az.append(Double(az));
+                last100ax.remove(at: 0); last100ax.append(Double(ax));
+                last100ay.remove(at: 0); last100ay.append(Double(ay));
+                last100az.remove(at: 0); last100az.append(Double(az));
                 chartData = [
-                    (last20ax, GradientColors.orange),
-                    (last20ay, GradientColors.green),
-                    (last20az, GradientColors.blue),
+                    (last100ax, GradientColors.orange),
+                    (last100ay, GradientColors.green),
+                    (last100az, GradientColors.blue),
                 ]
-                
-                let ay2 = ay * ay
-                let az2 = az * az
-                let accPitch = atan( ax / sqrt(ay2 + az2) ) * (180 / Float.pi)
                 
                 let gx = bytesToFloat(bytes: [byteArray[21], byteArray[20], byteArray[19], byteArray[18]])
                 let gy = bytesToFloat(bytes: [byteArray[25], byteArray[24], byteArray[23], byteArray[22]])
                 let gz = bytesToFloat(bytes: [byteArray[29], byteArray[28], byteArray[27], byteArray[26]])
                 
-                if lastTime != 0 {
-                    let dt = Float(time - lastTime)/1000
-                    let a: Float = 0.5
-                    let comPitch = (1-a) * (lastComPitch + dt*gy) + a*accPitch;
-                    lastComPitch = comPitch
+                // Method 1: Calculate EWMA pitch
+                do {
+                    let a: Float = 0.2
+                    let ax = a * self.filteredAccel[0] + (1-a)*ax
+                    let ay = a * self.filteredAccel[1] + (1-a)*ay
+                    let az = a * self.filteredAccel[2] + (1-a)*az
+                    self.filteredAccel = [ax, ay, az]
+                    let ay2 = ay * ay
+                    let az2 = az * az
+                    self.ewmaPitch = atan(ax / sqrt(ay2 + az2) ) * (180 / Float.pi)
+                }
+                
+                // Method 2
+                do {
+                    if let lastTime = self.lastTime {
+                        // Calculate acceleration pitch
+                        let ay2 = ay * ay
+                        let az2 = az * az
+                        let accPitch = atan( ax / sqrt(ay2 + az2) ) * (180 / Float.pi)
+                        let dt = Float(time - lastTime)/1000
+                        let a: Float = 0.5
+                        self.comPitch = (1-a) * (self.lastComPitch + dt*gy) + a*accPitch;
+                        self.lastComPitch = self.comPitch
+                    }
                 }
                 
                 lastTime = time

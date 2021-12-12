@@ -29,15 +29,19 @@ struct MovesenseView: View {
                 .foregroundColor(.white)
                 .cornerRadius(8)
                 
-                let x = String(format: "x 🔴: %.2f", vm.last20ax[vm.last20ax.count-1])
-                let y = String(format: "y 🟢: %.2f", vm.last20ay[vm.last20ay.count-1])
-                let z = String(format: "z 🔵: %.2f", vm.last20az[vm.last20az.count-1])
+                let x = String(format: "x 🔴: %.2f", vm.last100ax[vm.last100ax.count-1])
+                let y = String(format: "y 🟢: %.2f", vm.last100ay[vm.last100ay.count-1])
+                let z = String(format: "z 🔵: %.2f", vm.last100az[vm.last100az.count-1])
                 MultiLineChartView(
                     data: vm.chartData,
                     title: "Acceleration",
                     legend: "\(x), \(y), \(z)",
                     form: ChartForm.large
                 )
+                
+                Text("Pitch")
+                Text("Method 1: \(String(format: "%.2lf°", vm.ewmaPitch))")
+                Text("Method 2: \(String(format: "%.2lf°", vm.comPitch))")
                 
                 Button(vm.recording ? "Stop recording" : "Start recording") {
                     vm.recording ? vm.stopRecording() : vm.startRecording()
