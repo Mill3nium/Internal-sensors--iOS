@@ -5,10 +5,10 @@ import SwiftUICharts
 class InternalSensorVM : ObservableObject {
     var motionManager = CMMotionManager()
     
-    @Published var selectedFrequency = 30.0
+    @Published var interval = 30
     func setFreq() {
-        motionManager.accelerometerUpdateInterval = selectedFrequency/1000
-        motionManager.gyroUpdateInterval = selectedFrequency/1000
+        motionManager.accelerometerUpdateInterval = Double(interval)/1000
+        motionManager.gyroUpdateInterval = Double(interval)/1000
     }
     
     @Published var last100ax = Array(repeating: Double(0), count: 100)
@@ -89,7 +89,7 @@ class InternalSensorVM : ObservableObject {
                     self.lastTime = time
                     
                     if self.isRecording {
-                        self.csvFile.write(time, ax, ay, az, gx, gy, gz)
+                        self.csvFile.write(time, ax, ay, az, gx, gy, gz, self.ewmaPitch, self.comPitch)
                         
                         if Date.now - self.timeRecordingStarted > 10 {
                             self.stopRecording()

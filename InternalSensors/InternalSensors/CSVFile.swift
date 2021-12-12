@@ -17,10 +17,20 @@ struct CSVFile: FileDocument {
     // by default our document is empty
     private let csv: CSVWriter
     
-    func write(_ time: UInt32, _ ax: Float, _ ay: Float, _ az: Float, _ gx: Float, _ gy: Float, _ gz: Float) {
-        try! csv.write(row: ["\(ax)", "\(ay)", "\(az)", "\(gx)", "\(gy)", "\(gz)"])
+    func write(_ time: UInt32, _ ax: Float, _ ay: Float, _ az: Float, _ gx: Float, _ gy: Float, _ gz: Float, _ ewmaPitch: Float, _ comPitch: Float) {
+        try! csv.write(row: [
+            "\(ax)",
+            "\(ay)",
+            "\(az)",
+            "\(gx)",
+            "\(gy)",
+            "\(gz)",
+            "\(ewmaPitch)",
+            "\(comPitch)",
+        ])
     }
-    func write(_ time: Date, _ ax: Double, _ ay: Double, _ az: Double, _ gx: Double, _ gy: Double, _ gz: Double) {
+    
+    func write(_ time: Date, _ ax: Double, _ ay: Double, _ az: Double, _ gx: Double, _ gy: Double, _ gz: Double, _ ewmaPitch: Double, _ comPitch: Double) {
         try! csv.write(row: [
             "\(time.timeIntervalSince1970)",
             "\(ax)",
@@ -28,13 +38,15 @@ struct CSVFile: FileDocument {
             "\(az)",
             "\(gx)",
             "\(gy)",
-            "\(gz)"
+            "\(gz)",
+            "\(ewmaPitch)",
+            "\(comPitch)",
         ])
     }
     
     init() {
         csv = try! CSVWriter(stream: .toMemory())
-        try! csv.write(row: ["ax", "ay", "az", "gx", "gy", "gz"])
+        try! csv.write(row: ["ax", "ay", "az", "gx", "gy", "gz", "ewmaPitch", "comPitch"])
     }
 
     // this initializer loads data that has been saved previously

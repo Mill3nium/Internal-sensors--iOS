@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 @main
 struct InternalSensorsApp: App {
     @StateObject private var theViewModel = InternalSensorVM()
