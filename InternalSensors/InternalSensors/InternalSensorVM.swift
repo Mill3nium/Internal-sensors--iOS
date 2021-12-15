@@ -89,7 +89,7 @@ class InternalSensorVM : ObservableObject {
                     self.lastTime = time
                     
                     if self.isRecording {
-                        self.csvFile.write(time, ax, ay, az, gx, gy, gz, self.ewmaPitch, self.comPitch)
+                        self.csvFile.write(time-self.timeRecordingStarted, ax, ay, az, gx, gy, gz, self.ewmaPitch, self.comPitch)
                         
                         if Date.now - self.timeRecordingStarted > 10 {
                             self.stopRecording()

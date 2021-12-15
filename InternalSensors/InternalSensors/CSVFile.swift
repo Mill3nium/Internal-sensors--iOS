@@ -19,6 +19,7 @@ struct CSVFile: FileDocument {
     
     func write(_ time: UInt32, _ ax: Float, _ ay: Float, _ az: Float, _ gx: Float, _ gy: Float, _ gz: Float, _ ewmaPitch: Float, _ comPitch: Float) {
         try! csv.write(row: [
+            "\(time)",
             "\(ax)",
             "\(ay)",
             "\(az)",
@@ -30,9 +31,9 @@ struct CSVFile: FileDocument {
         ])
     }
     
-    func write(_ time: Date, _ ax: Double, _ ay: Double, _ az: Double, _ gx: Double, _ gy: Double, _ gz: Double, _ ewmaPitch: Double, _ comPitch: Double) {
+    func write(_ time: TimeInterval, _ ax: Double, _ ay: Double, _ az: Double, _ gx: Double, _ gy: Double, _ gz: Double, _ ewmaPitch: Double, _ comPitch: Double) {
         try! csv.write(row: [
-            "\(time.timeIntervalSince1970)",
+            "\(time)",
             "\(ax)",
             "\(ay)",
             "\(az)",
@@ -45,8 +46,8 @@ struct CSVFile: FileDocument {
     }
     
     init() {
-        csv = try! CSVWriter(stream: .toMemory())
-        try! csv.write(row: ["ax", "ay", "az", "gx", "gy", "gz", "ewmaPitch", "comPitch"])
+        csv = try! CSVWriter(stream: .toMemory(), codecType: UTF8.self)
+        try! csv.write(row: ["time", "ax", "ay", "az", "gx", "gy", "gz", "ewmaPitch", "comPitch"])
     }
 
     // this initializer loads data that has been saved previously

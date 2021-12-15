@@ -90,7 +90,7 @@ struct MovesenseView: View {
                             HStack {
                                 Text("Rate:")
                                 Picker("Rate", selection: $vm.sampleRate) {
-                                    ForEach([13, 26, 52, 104, 208, 416, 833], id: \.self) {
+                                    ForEach([13, 26, 52], id: \.self) {
                                         Text("\($0) Hz")
                                     }
                                 }

@@ -11,8 +11,10 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
     @Published var selectedSensor = 2
     @Published var sampleRate = 13
     func applySampleRate() {
-        pause()
-        unpause()
+        if !paused {
+            pause()
+            unpause()
+        }
     }
     
     @Published var paused = false
@@ -24,6 +26,7 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
     }
     func unpause() {
         paused = false
+        print("Unpausing with /Meas/IMU6/\(sampleRate)")
         let parameter = [1, 99] + [UInt8]("/Meas/IMU6/\(sampleRate)".data(using: String.Encoding.ascii)!)
         let data  = NSData(bytes: parameter, length: parameter.count)
         connectedPeripheral!.writeValue(data as Data, for: characteristics[GATTCommand]!, type: CBCharacteristicWriteType.withResponse)
@@ -95,7 +98,8 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
     
     @Published var connectionEstablished = false
     var characteristics: [CBUUID:CBCharacteristic] = [:]
-    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?)
+    {
         print("didDiscoverCharacteristics")
         guard let characteristics = service.characteristics else {return}
         
@@ -117,11 +121,7 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
                 // /Meas/Gyro/52
                 // /Meas/Acc/52
                 
-                let parameter = [1, 99] + [UInt8]("/Meas/IMU6/\(sampleRate)".data(using: String.Encoding.ascii)!)
-                let data  = NSData(bytes: parameter, length: parameter.count)
-                peripheral.writeValue(data as Data, for: characteristic, type: CBCharacteristicWriteType.withResponse)
-                
-                //                print("Command3 \(parameter.count)")
+                unpause()
             }
         }
     }
@@ -163,25 +163,34 @@ class MovesenseVM: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, Obs
             let reference = byteArray[1];
             
             if(response == 2 && reference == 99){
-                for i in 0...(sampleRate/13)-1 {
-                    let stride = i*24
-                    if byteArray.count <= stride+6 {
+                var time : UInt32 = 0
+                let timeBytes = NSData(bytes: Array(byteArray[2...5]), length: 4)
+                timeBytes.getBytes(&time, length: 4)
+//                print("Time: \(time)")
+                
+                let sampleCount = (sampleRate/13)
+//                print("Sample count: \(sampleCount)")
+                var stride = 6
+                for i in 0...sampleCount-1 {
+                    
+                    if stride >= byteArray.count {
                         print("OVERSIZE")
                         break
                     }
                     
-                    var time : UInt32 = 0
-                    let data = NSData(bytes: Array(byteArray[stride+2...stride+5]), length: 4)
-                    data.getBytes(&time, length: 4)
+                    if i > 0 { time+=1 }
                     
-                    let ax = bytesToFloat(bytes: byteArray[stride+6...stride+9])
-                    let ay = bytesToFloat(bytes: byteArray[stride+10...stride+13])
-                    let az = bytesToFloat(bytes: byteArray[stride+14...stride+17])
+                    let bytes = Array(byteArray[stride...stride+23])
+                    
+                    let ax = bytesToFloat(bytes: bytes[0...3])
+                    let ay = bytesToFloat(bytes: bytes[4...7])
+                    let az = bytesToFloat(bytes: bytes[8...11])
                     if self.selectedSensor != 0 {
-                        gx = bytesToFloat(bytes: byteArray[stride+18...stride+21])
-                        gy = bytesToFloat(bytes: byteArray[stride+22...stride+25])
-                        gz = bytesToFloat(bytes: byteArray[stride+26...stride+29])
+                        gx = bytesToFloat(bytes: bytes[12...15])
+                        gy = bytesToFloat(bytes: bytes[16...19])
+                        gz = bytesToFloat(bytes: bytes[20...23])
                     }
+                    stride += 24
                     
                     if self.selectedSensor != 1 {
                         last100ax.remove(at: 0); last100ax.append(Double(ax));
